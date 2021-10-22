@@ -24,6 +24,12 @@ public class TCPClient {
      */
     public boolean connect(String host, int port) {
         // TODO Step 1: implement this method
+        try {
+            Socket socket = new Socket(host, port);
+            System.out.println("Succesfully connected");
+        } catch(IOException e) {
+            System.out.println("Connection failed: " + e.getMessage());
+        }
         // Hint: Remember to process all exceptions and return false on error
         // Hint: Remember to set up all the necessary input/output stream variables
         return false;
