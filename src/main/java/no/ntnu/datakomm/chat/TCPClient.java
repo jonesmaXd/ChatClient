@@ -22,17 +22,29 @@ public class TCPClient {
      * @param port TCP port of the chat server
      * @return True on success, false otherwise
      */
+    public static void main(String[] args) {
+
+    }
+
     public boolean connect(String host, int port) {
         // TODO Step 1: implement this method
+
         try {
             Socket socket = new Socket(host, port);
             System.out.println("Succesfully connected");
+
+            OutputStream out = socket.getOutputStream();
+
+            //Get an HTTP response from server
+            InputStream in = socket.getInputStream();
+
+            return true;
         } catch(IOException e) {
             System.out.println("Connection failed: " + e.getMessage());
+            return false;
         }
         // Hint: Remember to process all exceptions and return false on error
         // Hint: Remember to set up all the necessary input/output stream variables
-        return false;
     }
 
     /**
