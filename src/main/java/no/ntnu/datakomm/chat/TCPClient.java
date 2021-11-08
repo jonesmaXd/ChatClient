@@ -28,12 +28,12 @@ public class TCPClient {
 
     public boolean connect(String host, int port) {
         // TODO Step 1: implement this method
-
         try {
             Socket socket = new Socket(host, port);
             System.out.println("Succesfully connected");
 
-            OutputStream out = socket.getOutputStream();
+            // Send an HTTP request to the server
+           OutputStream out = socket.getOutputStream();
 
             //Get an HTTP response from server
             InputStream in = socket.getInputStream();
@@ -75,9 +75,19 @@ public class TCPClient {
      * @return true on success, false otherwise
      */
     private boolean sendCommand(String cmd) {
-        // TODO Step 2: Implement this method
+                try {
+                    if (isConnectionActive()) {
+                    OutputStream out = connection.getOutputStream();
+                    PrintWriter writer = new PrintWriter(out, true);
+                    writer.println(cmd);
+                    return true;
+                    }
+                } catch(IOException e) {
+                    e.getMessage();
+                    return false;
+                }
+                
         // Hint: Remember to check if connection is active
-        return false;
     }
 
     /**
@@ -107,6 +117,7 @@ public class TCPClient {
      * Send a request for latest user list to the server. To get the new users,
      * clear your current user list and use events in the listener.
      */
+
     public void refreshUserList() {
         // TODO Step 5: implement this method
         // Hint: Use Wireshark and the provided chat client reference app to find out what commands the
