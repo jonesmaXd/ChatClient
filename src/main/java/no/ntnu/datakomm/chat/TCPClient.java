@@ -15,6 +15,10 @@ public class TCPClient {
 
     private final List<ChatListener> listeners = new LinkedList<>();
 
+    public static void main(String[] args) {
+
+    }
+
     /**
      * Connect to a chat server.
      *
@@ -22,21 +26,17 @@ public class TCPClient {
      * @param port TCP port of the chat server
      * @return True on success, false otherwise
      */
-    public static void main(String[] args) {
-
-    }
-
     public boolean connect(String host, int port) {
         // TODO Step 1: implement this method
         try {
-            Socket socket = new Socket(host, port);
+            connection = new Socket(host, port);
+
+            //Send a request to the server
+            toServer = new PrintWriter(connection.getOutputStream(), true);
+
+            //Receive a request from the server
+            fromServer = new BufferedReader(new InputStreamReader(connection.getInputStream()));
             System.out.println("Succesfully connected");
-
-            // Send an HTTP request to the server
-           OutputStream out = socket.getOutputStream();
-
-            //Get an HTTP response from server
-            InputStream in = socket.getInputStream();
 
             return true;
         } catch(IOException e) {
@@ -52,7 +52,7 @@ public class TCPClient {
      * threads may try to call it. For example: When "Disconnect" button is
      * pressed in the GUI thread, the connection will get closed. Meanwhile, the
      * background thread trying to read server's response will get error in the
-     * input stream and may try to call this method when the socket is already
+     * input stream and may try to call this method when the soc    ket is already
      * in the process of being closed. with "synchronized" keyword we make sure
      * that no two threads call this method in parallel.
      */
@@ -76,16 +76,10 @@ public class TCPClient {
      */
     private boolean sendCommand(String cmd) {
         if (isConnectionActive()) {
-            try {
-                OutputStream out = connection.getOutputStream();
-                PrintWriter writer = new PrintWriter(out, true);
-                writer.println(cmd);
-                return true;
-            } catch (IOException e) {
-                e.getMessage();
-                return false;
-            }
+            toServer.print(cmd);
+            return true;
         } else {
+            System.out.println("Socket closed");
             return false;
         }
         // Hint: Remember to check if connection is active
@@ -99,9 +93,16 @@ public class TCPClient {
      */
     public boolean sendPublicMessage(String message) {
         // TODO Step 2: implement this method
+        if(sendCommand("msg ")){
+            toServer.println(message);
+            System.out.println("Message successfully sent");
+            return true;
+        } else{
+            System.out.println("message failed to send");
+            return false;
+        }
         // Hint: Reuse sendCommand() method
         // Hint: update lastError if you want to store the reason for the error.
-        return false;
     }
 
     /**
