@@ -75,18 +75,19 @@ public class TCPClient {
      * @return true on success, false otherwise
      */
     private boolean sendCommand(String cmd) {
-                try {
-                    if (isConnectionActive()) {
-                    OutputStream out = connection.getOutputStream();
-                    PrintWriter writer = new PrintWriter(out, true);
-                    writer.println(cmd);
-                    return true;
-                    }
-                } catch(IOException e) {
-                    e.getMessage();
-                    return false;
-                }
-                
+        if (isConnectionActive()) {
+            try {
+                OutputStream out = connection.getOutputStream();
+                PrintWriter writer = new PrintWriter(out, true);
+                writer.println(cmd);
+                return true;
+            } catch (IOException e) {
+                e.getMessage();
+                return false;
+            }
+        } else {
+            return false;
+        }
         // Hint: Remember to check if connection is active
     }
 
