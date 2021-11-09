@@ -58,6 +58,15 @@ public class TCPClient {
      */
     public synchronized void disconnect() {
         // TODO Step 4: implement this method
+        if (isConnectionActive()){
+            try {
+                connection.close();
+            } catch (IOException e) {
+                System.out.println("Error closing socket: " + e.getMessage());
+            }
+        } else{
+            System.out.println("Socket is already disconnected");
+        }
         // Hint: remember to check if connection is active
     }
 
@@ -112,6 +121,13 @@ public class TCPClient {
      */
     public void tryLogin(String username) {
         // TODO Step 3: implement this method
+        if(sendCommand("login ")){
+            toServer.println(username);
+            System.out.println("Username sent to server");
+        }
+        else{
+            System.out.println("Sending username failed");
+        }
         // Hint: Reuse sendCommand() method
     }
 
@@ -156,11 +172,15 @@ public class TCPClient {
      * @return one line of text (one command) received from the server
      */
     private String waitServerResponse() {
+        try {
+            return fromServer.readLine();
+        } catch (IOException e) {
+            System.out.println("Error: " + e.getMessage());
+            return "";
+        }
         // TODO Step 3: Implement this method
         // TODO Step 4: If you get I/O Exception or null from the stream, it means that something has gone wrong
         // with the stream and hence the socket. Probably a good idea to close the socket in that case.
-
-        return null;
     }
 
     /**
@@ -194,6 +214,15 @@ public class TCPClient {
     private void parseIncomingCommands() {
         while (isConnectionActive()) {
             // TODO Step 3: Implement this method
+            switch (waitServerResponse()){
+                case "loginok":
+                    onLoginResult(true, "");
+                    System.out.println("Login successful");
+                    break;
+                case "loginerr":
+                    onLoginResult(false, "Login error");
+                    break;
+            }
             // Hint: Reuse waitServerResponse() method
             // Hint: Have a switch-case (or other way) to check what type of response is received from the server
             // and act on it.
