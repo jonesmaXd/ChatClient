@@ -61,6 +61,8 @@ public class TCPClient {
         if (isConnectionActive()){
             try {
                 connection.close();
+                connection = null;
+                System.out.println("Socket closed successfully");
             } catch (IOException e) {
                 System.out.println("Error closing socket: " + e.getMessage());
             }
@@ -176,6 +178,7 @@ public class TCPClient {
             return fromServer.readLine();
         } catch (IOException e) {
             System.out.println("Error: " + e.getMessage());
+            onDisconnect();
             return "";
         }
         // TODO Step 3: Implement this method
@@ -287,6 +290,9 @@ public class TCPClient {
      */
     private void onDisconnect() {
         // TODO Step 4: Implement this method
+        for(ChatListener l : listeners){
+            l.onDisconnect();
+        }
         // Hint: all the onXXX() methods will be similar to onLoginResult()
     }
 
