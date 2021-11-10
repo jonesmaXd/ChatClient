@@ -140,6 +140,10 @@ public class TCPClient {
 
     public void refreshUserList() {
         // TODO Step 5: implement this method
+         if(sendCommand("users ")){
+             toServer.println("");
+             System.out.println("Requested user list from server");
+         }
         // Hint: Use Wireshark and the provided chat client reference app to find out what commands the
         // client and server exchange for user listing.
     }
@@ -215,6 +219,8 @@ public class TCPClient {
      * the connection is closed.
      */
     private void parseIncomingCommands() {
+        String[] message = waitServerResponse().split(" ",2);
+        String reply = message[0];
         while (isConnectionActive()) {
             // TODO Step 3: Implement this method
             switch (waitServerResponse()){
@@ -222,9 +228,16 @@ public class TCPClient {
                     onLoginResult(true, "");
                     System.out.println("Login successful");
                     break;
+
                 case "loginerr":
                     onLoginResult(false, "Login error");
                     break;
+
+                case "users":
+                    onUsersList(message[1].split(" "));
+                    break;
+
+                    
             }
             // Hint: Reuse waitServerResponse() method
             // Hint: Have a switch-case (or other way) to check what type of response is received from the server
@@ -302,6 +315,9 @@ public class TCPClient {
      * @param users List with usernames
      */
     private void onUsersList(String[] users) {
+        for(ChatListener l : listeners){
+            l.onUserList(users);
+        }
         // TODO Step 5: Implement this method
     }
 
