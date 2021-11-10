@@ -157,9 +157,16 @@ public class TCPClient {
      */
     public boolean sendPrivateMessage(String recipient, String message) {
         // TODO Step 6: Implement this method
+        if(sendCommand("privmsg " + recipient)){
+            toServer.println(" " + message);
+            System.out.println("private message send to: " + recipient);
+            return true;
+        } else{
+            System.out.println("Private message not sent");
+            return false;
+        }
         // Hint: Reuse sendCommand() method
         // Hint: update lastError if you want to store the reason for the error.
-        return false;
     }
 
 
@@ -219,11 +226,13 @@ public class TCPClient {
      * the connection is closed.
      */
     private void parseIncomingCommands() {
+
         String[] message = waitServerResponse().split(" ",2);
         String reply = message[0];
+
         while (isConnectionActive()) {
             // TODO Step 3: Implement this method
-            switch (waitServerResponse()){
+            switch (reply) {
                 case "loginok":
                     onLoginResult(true, "");
                     System.out.println("Login successful");
@@ -237,7 +246,6 @@ public class TCPClient {
                     onUsersList(message[1].split(" "));
                     break;
 
-                    
             }
             // Hint: Reuse waitServerResponse() method
             // Hint: Have a switch-case (or other way) to check what type of response is received from the server
