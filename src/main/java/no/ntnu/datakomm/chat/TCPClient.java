@@ -140,10 +140,10 @@ public class TCPClient {
 
     public void refreshUserList() {
         // TODO Step 5: implement this method
-         if(sendCommand("users ")){
-             toServer.println("");
-             System.out.println("Requested user list from server");
-         }
+        if(sendCommand("users")){
+            toServer.println("");
+            System.out.println("Requested user list from server");
+        }
         // Hint: Use Wireshark and the provided chat client reference app to find out what commands the
         // client and server exchange for user listing.
     }
@@ -174,7 +174,9 @@ public class TCPClient {
      * Send a request for the list of commands that server supports.
      */
     public void askSupportedCommands() {
-        // TODO Step 8: Implement this method
+        if(sendCommand("help ")){
+            toServer.println("");
+        }
         // Hint: Reuse sendCommand() method
     }
 
@@ -227,10 +229,10 @@ public class TCPClient {
      */
     private void parseIncomingCommands() {
 
-        String[] message = waitServerResponse().split(" ",2);
-        String reply = message[0];
-
         while (isConnectionActive()) {
+
+            String[] message = waitServerResponse().split(" ",2);
+            String reply = message[0];
             // TODO Step 3: Implement this method
             switch (reply) {
                 case "loginok":
@@ -246,6 +248,26 @@ public class TCPClient {
                     onUsersList(message[1].split(" "));
                     break;
 
+                case "msg":
+                    String[] str = message[1].split(" ", 2);
+                    onMsgReceived(false, str[0],str[1]);
+                    break;
+
+                case "privmsg":
+                    String[] str1 = message[1].split(" ", 2);
+                    onMsgReceived(true, str1[0],str1[1]);
+                    break;
+
+                case "msgerr":
+                    onMsgError(message[1]);
+                    break;
+
+                case "cmderr":
+                    onCmdError(message[1]);
+                    break;
+
+                case "supported":
+                    onSupported(message[1].split(" ", 2));
             }
             // Hint: Reuse waitServerResponse() method
             // Hint: Have a switch-case (or other way) to check what type of response is received from the server
@@ -337,6 +359,10 @@ public class TCPClient {
      * @param text   Message text
      */
     private void onMsgReceived(boolean priv, String sender, String text) {
+        TextMessage textMessage = new TextMessage(sender, priv, text);
+        for(ChatListener l : listeners){
+            l.onMessageReceived(textMessage);
+        }
         // TODO Step 7: Implement this method
     }
 
@@ -346,6 +372,9 @@ public class TCPClient {
      * @param errMsg Error description returned by the server
      */
     private void onMsgError(String errMsg) {
+        for(ChatListener l : listeners){
+            l.onMessageError(errMsg);
+        }
         // TODO Step 7: Implement this method
     }
 
@@ -355,6 +384,9 @@ public class TCPClient {
      * @param errMsg Error message
      */
     private void onCmdError(String errMsg) {
+        for(ChatListener l : listeners){
+            l.onCommandError(errMsg);
+        }
         // TODO Step 7: Implement this method
     }
 
@@ -365,6 +397,9 @@ public class TCPClient {
      * @param commands Commands supported by the server
      */
     private void onSupported(String[] commands) {
+        for(ChatListener l : listeners){
+            l.onSupportedCommands(commands);
+        }
         // TODO Step 8: Implement this method
     }
 }
